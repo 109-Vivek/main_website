@@ -1,0 +1,43 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String?
+  image     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  accounts  Account[] // This field establishes the inverse relation to Account
+  sessions  Session[] // This field establishes the inverse relation to Session
+}
+
+model Account {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  providerType      String
+  providerId        String
+  providerAccountId String   @unique
+  refreshToken      String?
+  accessToken       String?
+  expiresAt         Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id])
+}
+
+model Session {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  expires      DateTime
+  sessionToken String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+}
